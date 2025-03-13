@@ -5,11 +5,11 @@ import { checkMessageLimit, incrementMessageCount, saveWorkflowHistory } from '@
 
 export async function POST(req: NextRequest) {
   try {
-    const { content } = await req.json();
+    const { website, company } = await req.json();
 
-    if (!content) {
+    if (!website || !company) {
       return NextResponse.json(
-        { error: 'Missing content parameter' },
+        { error: 'Missing website or company parameter' },
         { status: 400 }
       );
     }
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Call the external AI Tutor API's run endpoint.
+    // Call the external AI Tutor API's run endpoint with website and company parameters
     const response = await fetch(
       `https://aitutor-api.vercel.app/api/v1/run/${process.env.WORKFLOW_ID}`,
       {
@@ -61,7 +61,10 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${process.env.AITUTOR_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ 
+          website: website,
+          company: company
+        }),
       }
     );
 
@@ -77,11 +80,12 @@ export async function POST(req: NextRequest) {
     // MOVED: Increment the team's message count AFTER successful API call
     await incrementMessageCount(team.id, 1);
 
-    // Save workflow history
+    // Save workflow history - store the input as a JSON string with website and company
+    const inputData = JSON.stringify({ website, company });
     await saveWorkflowHistory(
       team.id, 
       user.id, 
-      content, 
+      inputData, 
       data.result || JSON.stringify(data)
     );
 

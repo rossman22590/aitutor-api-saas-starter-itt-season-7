@@ -20,23 +20,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navItems = [
     {
-      title: "Workflow",
-      url: "/dashboard/workflow",
+      title: "Google Ad Generator",
+      url: "/dashboard/adgen",
       icon: GemIcon,
-      isActive: pathname.startsWith('/dashboard/workflow'),
+      isActive: pathname.startsWith('/dashboard/adgen'),
     },
-    {
-      title: "Chatbot",
-      url: "/dashboard/chatbot",
-      icon: BotIcon,
-      isActive: pathname.startsWith('/dashboard/chatbot'),
-    },
-    {
-      title: "Streaming",
-      url: "/dashboard/streaming",
-      icon: MessageCircle,
-      isActive: pathname.startsWith('/dashboard/streaming'),
-    },
+    // {
+    //   title: "Chatbot",
+    //   url: "/dashboard/chatbot",
+    //   icon: BotIcon,
+    //   isActive: pathname.startsWith('/dashboard/chatbot'),
+    // },
+    // {
+    //   title: "Streaming",
+    //   url: "/dashboard/streaming",
+    //   icon: MessageCircle,
+    //   isActive: pathname.startsWith('/dashboard/streaming'),
+    // },
     {
       title: "Team",
       url: '/dashboard/team',

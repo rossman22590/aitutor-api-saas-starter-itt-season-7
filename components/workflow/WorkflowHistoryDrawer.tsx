@@ -49,6 +49,19 @@ export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawer
     setOpen(false);
   };
 
+  // Function to display input in a readable format
+  const formatInput = (input: string) => {
+    try {
+      const parsedInput = JSON.parse(input);
+      if (parsedInput.website && parsedInput.company) {
+        return `${parsedInput.company} - ${parsedInput.website}`;
+      }
+      return input;
+    } catch (e) {
+      return input;
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -66,7 +79,7 @@ export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawer
               <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
           ) : history.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No generate ads found</p>
+            <p className="text-center text-gray-500 py-8">No generated ads found</p>
           ) : (
             <div className="space-y-4">
               {history.map((item) => (
@@ -76,12 +89,18 @@ export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawer
                   onClick={() => handleSelectHistory(item)}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-gray-900 truncate max-w-[80%]">{item.input}</h3>
+                    <h3 className="font-medium text-gray-900 truncate max-w-[80%]">
+                      {formatInput(item.input)}
+                    </h3>
                     <span className="text-xs text-gray-500">
                       {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm line-clamp-2">{item.output}</p>
+                  <p className="text-gray-600 text-sm line-clamp-2">
+                    {typeof item.output === 'string' && item.output.length > 100 
+                      ? `${item.output.substring(0, 100)}...` 
+                      : item.output}
+                  </p>
                 </div>
               ))}
             </div>
