@@ -91,7 +91,7 @@ export default function StreamingPage() {
         {/* Header with buttons */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
-            AI Assistant
+            Chat with Documents
           </h1>
           <div className="flex space-x-3">
             <Button 
