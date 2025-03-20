@@ -72,26 +72,58 @@ export const invitations = pgTable('invitations', {
   status: varchar('status', { length: 20 }).notNull().default('pending'),
 });
 
-// Added messages table
+// Messages table for general messaging
 export const messages = pgTable('messages', {
     id: serial('id').primaryKey(),
     teamId: integer('team_id').notNull().references(() => teams.id),
-    userId: integer('user_id').notNull().references(() => users.id), // Keep track of which user sent the message
-    content: text('content').notNull(), // Assuming you want to store message content
+    userId: integer('user_id').notNull().references(() => users.id),
+    content: text('content').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+export const workflowHistory = pgTable('workflow_history', {
+  id: serial('id').primaryKey(),
+  teamId: integer('team_id').notNull().references(() => teams.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  input: text('input').notNull(),
+  output: text('output').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// New tables for chat functionality
+export const chats = pgTable('chats', {
+  id: serial('id').primaryKey(),
+  teamId: integer('team_id').notNull().references(() => teams.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  title: varchar('title', { length: 255 }).notNull().default('New Chat'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const chatMessages = pgTable('chat_messages', {
+  id: serial('id').primaryKey(),
+  chatId: integer('chat_id')
+    .notNull()
+    .references(() => chats.id, { onDelete: 'cascade' }),
+  role: varchar('role', { length: 50 }).notNull(), // 'user' or 'assistant'
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Relations
 export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
   invitations: many(invitations),
-  messages: many(messages), // Relation to messages
+  messages: many(messages),
+  chats: many(chats),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
   teamMembers: many(teamMembers),
   invitationsSent: many(invitations),
-  messages: many(messages), // Relation to messages
+  messages: many(messages),
+  chats: many(chats),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -127,26 +159,16 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   }),
 }));
 
-// Added messages relations
 export const messagesRelations = relations(messages, ({ one }) => ({
-    team: one(teams, {
-        fields: [messages.teamId],
-        references: [teams.id],
-    }),
-    user: one(users, {
-        fields: [messages.userId],
-        references: [users.id],
-    }),
+  team: one(teams, {
+    fields: [messages.teamId],
+    references: [teams.id],
+  }),
+  user: one(users, {
+    fields: [messages.userId],
+    references: [users.id],
+  }),
 }));
-
-export const workflowHistory = pgTable('workflow_history', {
-  id: serial('id').primaryKey(),
-  teamId: integer('team_id').notNull().references(() => teams.id),
-  userId: integer('user_id').notNull().references(() => users.id),
-  input: text('input').notNull(),
-  output: text('output').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
 
 export const workflowHistoryRelations = relations(workflowHistory, ({ one }) => ({
   team: one(teams, {
@@ -159,10 +181,52 @@ export const workflowHistoryRelations = relations(workflowHistory, ({ one }) => 
   }),
 }));
 
-// Add these types
-export type WorkflowHistory = typeof workflowHistory.$inferSelect;
-export type NewWorkflowHistory = typeof workflowHistory.$inferInsert;
+// Relations for chat tables
+export const chatsRelations = relations(chats, ({ one, many }) => ({
+  team: one(teams, {
+    fields: [chats.teamId],
+    references: [teams.id],
+  }),
+  user: one(users, {
+    fields: [chats.userId],
+    references: [users.id],
+  }),
+  messages: many(chatMessages),
+}));
 
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  chat: one(chats, {
+    fields: [chatMessages.chatId],
+    references: [chats.id],
+  }),
+}));
+
+export const files = pgTable('files', {
+  id: serial('id').primaryKey(),
+  fileId: text('file_id').notNull(), // The UUID returned from RAG API
+  fileName: varchar('file_name', { length: 255 }).notNull(),
+  fileType: varchar('file_type', { length: 50 }).notNull().default('pdf'), // limiting to PDF only
+  teamId: integer('team_id').notNull().references(() => teams.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const filesRelations = relations(files, ({ one }) => ({
+  team: one(teams, {
+    fields: [files.teamId],
+    references: [teams.id],
+  }),
+  user: one(users, {
+    fields: [files.userId],
+    references: [users.id],
+  }),
+}));
+
+// Add these types to your existing types
+export type File = typeof files.$inferSelect;
+export type NewFile = typeof files.$inferInsert;
+
+// Types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -173,9 +237,16 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
 export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
-// Added Message types
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+export type WorkflowHistory = typeof workflowHistory.$inferSelect;
+export type NewWorkflowHistory = typeof workflowHistory.$inferInsert;
+
+// Types for chat entities
+export type Chat = typeof chats.$inferSelect;
+export type NewChat = typeof chats.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type NewChatMessage = typeof chatMessages.$inferInsert;
 
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
@@ -195,4 +266,3 @@ export enum ActivityType {
   INVITE_TEAM_MEMBER = 'INVITE_TEAM_MEMBER',
   ACCEPT_INVITATION = 'ACCEPT_INVITATION',
 }
-

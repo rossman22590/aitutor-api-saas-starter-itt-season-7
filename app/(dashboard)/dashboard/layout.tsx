@@ -1,12 +1,29 @@
-// app/(dashboard)/dashboard/layout.tsx
-'use client';
+// Modify your dashboard/layout.tsx file:
+"use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
+
+// Create a wrapper component that adapts to sidebar state
+function AdaptiveContent({ children }: { children: React.ReactNode }) {
+  const { state } = useSidebar();
+  
+  return (
+    <div 
+      className="flex flex-col w-full transition-all duration-200 ease-linear"
+      style={{
+        marginLeft: state === "expanded" ? "18rem" : "4rem",
+        width: state === "expanded" ? "calc(100% - 18rem)" : "calc(100% - 4rem)",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function DashboardLayout({
   children,
@@ -15,12 +32,12 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider className="bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100">
-      <AppSidebar variant="floating" collapsible="icon" />
+      <AppSidebar variant="sidebar" collapsible="icon" />
       <SidebarInset>
         <div className="bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 min-h-[calc(100dvh)]">
-        <div className="flex flex-col max-w-7xl mx-auto w-full">
-          {children}
-        </div>
+          <AdaptiveContent>
+            {children}
+          </AdaptiveContent>
         </div>
       </SidebarInset>
     </SidebarProvider>

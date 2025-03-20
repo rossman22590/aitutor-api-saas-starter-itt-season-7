@@ -30,11 +30,11 @@ export async function checkMessageLimit(
       messageLimit = matchedTier.messageLimit;
     } else {
       // If no matching tier found, default to free.
-      messageLimit = 5;
+      messageLimit = 20;
     }
   } else {
     // No active subscription—apply free plan limit.
-    messageLimit = 5;
+    messageLimit = 20;
   }
 
   const currentMessages = currentTeam.currentMessages ?? 0;

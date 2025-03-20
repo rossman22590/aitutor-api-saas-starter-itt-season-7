@@ -31,12 +31,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     //   icon: BotIcon,
     //   isActive: pathname.startsWith('/dashboard/chatbot'),
     // },
-    // {
-    //   title: "Streaming",
-    //   url: "/dashboard/streaming",
-    //   icon: MessageCircle,
-    //   isActive: pathname.startsWith('/dashboard/streaming'),
-    // },
+   {
+      title: "Chat with Documents",
+      url: "/dashboard/streaming",
+     icon: MessageCircle,
+      isActive: pathname.startsWith('/dashboard/streaming'),
+   },
     {
       title: "Team",
       url: '/dashboard/team',
