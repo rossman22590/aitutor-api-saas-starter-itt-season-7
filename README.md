@@ -1,9 +1,9 @@
 # AI Tutor API Subscription Starter
 
 ![AI Tutor API Logo](https://raw.githubusercontent.com/Tech-in-Schools-Initiative/aitutor-api-saas-starter/main/public/logo-long.png)
-
+ 
 Use workflows and chatbots created with [AI Tutor API](https://aitutor-api.vercel.app/).  
-This template is based on [Vercel SAAS Starter](https://github.com/nextjs/saas-starter).
+This template is based on [Vercel SAAS Starter](https://github.com/nextjs/saas-starter). 
 
 ## Overview
 
